@@ -1,20 +1,25 @@
 import json
 import re
 
+
 def safe_parse_json(text: str):
+    text = text.strip()
+
+    # Strip markdown code fences
+    text = re.sub(r"```json\s*|```\s*", "", text).strip()
+
+    # Try direct parse first
     try:
         return json.loads(text)
-    except:
-        # Step 1: remove markdown code blocks
-        text = re.sub(r"```json|```", "", text).strip()
+    except json.JSONDecodeError:
+        pass
 
-        # Step 2: extract JSON array or object
-        match = re.search(r"(\[.*\]|\{.*\})", text, re.DOTALL)
-        if match:
-            cleaned = match.group(1)
-        else:
-            raise ValueError(f"No JSON found in: {text}")
+    # Extract first JSON array or object
+    match = re.search(r"(\[.*?\]|\{.*?\})", text, re.DOTALL)
+    if not match:
+        raise ValueError(f"No JSON found in response: {text[:200]}")
 
-        # Step 3: fix common issues
-        cleaned = cleaned.replace("'", '"')
-        return json.loads(cleaned)
+    try:
+        return json.loads(match.group(1))
+    except json.JSONDecodeError as e:
+        raise ValueError(f"Failed to parse extracted JSON: {e}")
