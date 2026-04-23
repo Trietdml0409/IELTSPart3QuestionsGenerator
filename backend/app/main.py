@@ -1,4 +1,4 @@
-#py -m uvicorn app.main:app --reload
+#py -m uvicorn app.main:app --reload 
 
 from fastapi import FastAPI
 from app.routes import topics, questions, answer

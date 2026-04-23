@@ -5,4 +5,5 @@ router = APIRouter()
 
 @router.get("/topics")
 def get_topics():
+    print("XXX123")
     return {"topics": generate_topics()}
